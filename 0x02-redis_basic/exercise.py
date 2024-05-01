@@ -23,6 +23,20 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def call_history(method: Callable) -> Callable:
+    """Method for storing the history of inputs and outputs"""
+    @wrap(method)
+    def wrapper(self, *args, **kwargs):
+        """method that wraps call history decorated function"""
+        input = str(args)
+        self._redis.rpush(method.__qualname__ + ":inputs", input)
+        output = str(method(self, *args, **kwargs))
+        self._redis.rpush(method.__qualname__ + ":ouptuts", output)
+        return output
+
+    return wrapper
+
+
 class Cache:
     """Creating a Cache Class"""
 
