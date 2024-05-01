@@ -17,9 +17,7 @@ class Cache:
         """Dunder function to store the instance of Redis Client"""
         self._redis = redis.Redis()
         self._redis.flushdb()
-
-    @count_calls
-    @call_history
+    
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Function that generates a random key"""
         random_key = str(uuid4())
