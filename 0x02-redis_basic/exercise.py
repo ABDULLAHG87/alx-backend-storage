@@ -10,6 +10,19 @@ from functools import wraps
 from typing import Union, Optional, Callable
 
 
+def count_calls(method: Callable) -> Callable:
+    """counts how many times cache class are called"""
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """a function that wraps decorated function"""
+        self._redis.incr(key)
+        return method(self, *args, **kwargs)
+
+    return wrapper
+
+
 class Cache:
     """Creating a Cache Class"""
 
@@ -17,7 +30,8 @@ class Cache:
         """Dunder function to store the instance of Redis Client"""
         self._redis = redis.Redis()
         self._redis.flushdb()
-    
+
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Function that generates a random key"""
         random_key = str(uuid4())
